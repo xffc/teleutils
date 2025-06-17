@@ -19,7 +19,6 @@ dependencies {
     implementation(libs.serialization.json)
     implementation(libs.kraft)
     implementation(libs.telegram)
-    implementation(libs.adventure.plain)
     implementation(libs.kache)
 }
 
