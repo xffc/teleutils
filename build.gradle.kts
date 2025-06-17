@@ -1,4 +1,6 @@
 plugins {
+    application
+
     alias(libs.plugins.kotlin)
     alias(libs.plugins.serialization)
     alias(libs.plugins.shadow)
@@ -6,6 +8,8 @@ plugins {
 
 group = "io.github.xffc.${rootProject.name}"
 version = "1.0"
+
+application.mainClass = "$group.MainKt"
 
 repositories {
     mavenCentral()
