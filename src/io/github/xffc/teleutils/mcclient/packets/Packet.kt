@@ -6,7 +6,6 @@ import io.github.xffc.teleutils.mcclient.packets.serverbound.ServerboundPacketIn
 import kotlinx.io.Buffer
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
-import kotlin.reflect.full.createInstance
 
 interface Packet {
     fun info() =

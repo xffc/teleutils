@@ -1,7 +1,6 @@
 package io.github.xffc.teleutils
 
 import com.pengrad.telegrambot.Callback
-import com.pengrad.telegrambot.Cancellable
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.UpdatesListener
 import com.pengrad.telegrambot.model.Message
