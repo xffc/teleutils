@@ -66,6 +66,8 @@ object StatusCommand : ExecutableCommand("status", "mcstatus") {
             )
         )
 
+        client.state = State.STATUS
+
         client.sendPacket(StatusRequestPacket())
 
         Thread.sleep(10000)
