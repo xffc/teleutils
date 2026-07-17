@@ -1,0 +1,108 @@
+package io.github.xffc.teleutils
+
+import com.pengrad.telegrambot.Callback
+import com.pengrad.telegrambot.Cancellable
+import com.pengrad.telegrambot.TelegramBot
+import com.pengrad.telegrambot.UpdatesListener
+import com.pengrad.telegrambot.model.Message
+import com.pengrad.telegrambot.model.Update
+import com.pengrad.telegrambot.request.BaseRequest
+import com.pengrad.telegrambot.request.GetMe
+import com.pengrad.telegrambot.request.SendMessage
+import com.pengrad.telegrambot.response.BaseResponse
+import io.github.xffc.teleutils.commands.ExecutableCommand
+import io.github.xffc.teleutils.mcclient.packets.Packet
+import okhttp3.OkHttpClient
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.Proxy
+
+lateinit var COMMAND_REGEX: Regex
+    private set
+
+lateinit var bot: TelegramBot
+    private set
+
+val logger: Logger = LoggerFactory.getLogger("TeleUtils")
+
+fun main(vararg args: String) {
+    val httpClient = OkHttpClient.Builder().run {
+        proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 10808)))
+        build()
+    }
+
+    bot = TelegramBot.Builder(args[0])
+        .okHttpClient(httpClient)
+        .build()
+
+    // init registries
+    Packet.clientboundRegistry
+    Packet.serverboundRegistry
+
+    val botInfo = bot.execute(GetMe()).user()
+    logger.info("Logged as ${botInfo.username()} (${botInfo.id()})")
+
+    logger.info("Commands:")
+    ExecutableCommand.registry.forEach { (name, data) ->
+        if (data.isAlias) return@forEach
+        logger.info("/$name${if (data.aliases != null) " (${data.aliases.joinToString()})" else ""}")
+        data.arguments.forEachIndexed { index, argument ->
+            logger.info(" ${index + 1}. ${argument.name} - ${if (argument.required) "required" else "optional"}")
+        }
+    }
+
+    COMMAND_REGEX = """^/\w+@${botInfo.username()}(?:\s.*|$)""".toRegex()
+
+    bot.setUpdatesListener { updates ->
+        updates.forEach(::handleUpdate)
+
+        UpdatesListener.CONFIRMED_UPDATES_ALL
+    }
+}
+
+fun handleUpdate(update: Update) {
+    val message = update.message() ?: return
+    val text = message.text() ?: return
+    val from = message.from() ?: return
+    val chat = message.chat() ?: return
+
+    val commandCheck =
+        if (from.id() == chat.id()) text.startsWith("/")
+        else text.matches(COMMAND_REGEX)
+
+    if (!commandCheck) return
+
+    val command = text.substringAfter("/").split("@", " ")[0]
+    val arguments = text.split(" ").drop(1)
+
+    runCatching {
+        ExecutableCommand.registry[command]?.instance?.run(update, arguments) ?: return
+    }.onFailure { sendError(message, it) }
+}
+
+fun sendError(message: Message, throwable: Throwable) =
+    SendMessage(message.chat().id(), "❌ ${throwable.message}")
+        .asyncExecute()
+
+fun <REQ : BaseRequest<REQ, RES>, RES : BaseResponse> REQ.asyncExecute(
+    onFailure: (IOException) -> Unit = {},
+    onResponse: (RES) -> Unit = {}
+) = bot.asyncExecute(this, onFailure, onResponse)
+
+fun <REQ : BaseRequest<REQ, RES>, RES : BaseResponse> TelegramBot.asyncExecute(
+    request: REQ,
+    onFailure: (IOException) -> Unit = {},
+    onResponse: (RES) -> Unit = {}
+) {
+    execute(request, object : Callback<REQ, RES> {
+        override fun onResponse(request: REQ, response: RES) {
+            onResponse(response)
+        }
+
+        override fun onFailure(request: REQ, e: IOException) {
+            onFailure(e)
+        }
+    })
+}
