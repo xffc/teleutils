@@ -25,9 +25,9 @@ class StatusResponsePacket(status: String): Packet {
     @Serializable
     data class Status(
         val version: Version,
-        val players: Players?,
-        val description: SerializableComponent?,
-        val favicon: String?,
+        val players: Players? = null,
+        val description: SerializableComponent? = null,
+        val favicon: String? = null,
         val enforcesSecureChat: Boolean = false
     ) {
         @Serializable
@@ -40,7 +40,7 @@ class StatusResponsePacket(status: String): Packet {
         data class Players(
             val max: Int,
             val online: Int,
-            val sample: List<Player>?
+            val sample: List<Player>? = null
         )
 
         @Serializable
