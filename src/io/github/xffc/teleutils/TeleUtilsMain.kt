@@ -28,7 +28,7 @@ val logger: Logger = LoggerFactory.getLogger("TeleUtils")
 
 fun main(vararg args: String) {
     val httpClient = OkHttpClient.Builder().run {
-        proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 10808)))
+        //proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 10808)))
         build()
     }
 
@@ -75,6 +75,8 @@ fun handleUpdate(update: Update) {
 
     val command = text.substringAfter("/").split("@", " ")[0]
     val arguments = text.split(" ").drop(1)
+
+    logger.info("${from.username() ?: from.firstName()} (${from.id()}) > $text")
 
     runCatching {
         ExecutableCommand.registry[command]?.instance?.run(update, arguments) ?: return
