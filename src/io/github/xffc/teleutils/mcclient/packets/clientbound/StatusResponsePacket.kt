@@ -1,5 +1,6 @@
 package io.github.xffc.teleutils.mcclient.packets.clientbound
 
+import io.github.xffc.teleutils.json
 import io.github.xffc.teleutils.mcclient.SerializableComponent
 import io.github.xffc.teleutils.mcclient.State
 import io.github.xffc.teleutils.mcclient.packets.Packet
@@ -9,8 +10,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.uuid.Uuid
 
-class StatusResponsePacket(json: String): Packet {
-    val status = Json.decodeFromString<Status>(json)
+class StatusResponsePacket(status: String): Packet {
+    val status = json.decodeFromString<Status>(status)
 
     companion object: ClientboundPacketInfo<StatusResponsePacket> {
         override val id = 0
