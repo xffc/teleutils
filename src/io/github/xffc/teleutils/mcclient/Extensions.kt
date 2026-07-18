@@ -3,12 +3,12 @@ package io.github.xffc.teleutils.mcclient
 import kotlinx.io.Sink
 import kotlinx.io.Source
 import kotlinx.io.readString
-import kotlinx.io.writeString
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import java.io.InputStream
 
-val String.tryComponent get() =
+val String.tryComponent: Component
+    get() =
     try {
         GsonComponentSerializer.gson().deserialize(this)
     } catch (_: Exception) {
