@@ -40,8 +40,9 @@ fun Source.readVarInt(): Int {
 }
 
 fun Sink.writePrefixedString(value: String) {
-    writeVarInt(value.length)
-    writeString(value)
+    val bytes = value.encodeToByteArray()
+    writeVarInt(bytes.size)
+    write(bytes)
 }
 
 fun Source.readPrefixedString(): String =
