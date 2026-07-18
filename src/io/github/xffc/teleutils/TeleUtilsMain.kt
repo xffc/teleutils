@@ -11,6 +11,7 @@ import com.pengrad.telegrambot.request.SendMessage
 import com.pengrad.telegrambot.response.BaseResponse
 import io.github.xffc.teleutils.commands.ExecutableCommand
 import io.github.xffc.teleutils.mcclient.packets.Packet
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.slf4j.Logger
@@ -38,10 +39,12 @@ val prettyJson = Json {
     ignoreUnknownKeys = true
 }
 
+@Serializable
 data class Configuration(
     val token: String = "XXX:XXX-XXX",
     val proxy: ProxyConfiguration? = null
 ) {
+    @Serializable
     data class ProxyConfiguration(
         val host: String,
         val port: Int,
@@ -63,7 +66,7 @@ fun main(vararg args: String) {
         build()
     }
 
-    bot = TelegramBot.Builder(args[0])
+    bot = TelegramBot.Builder(config.token)
         .okHttpClient(httpClient)
         .build()
 
