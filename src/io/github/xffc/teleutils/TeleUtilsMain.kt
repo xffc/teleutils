@@ -54,8 +54,8 @@ data class Configuration(
 fun main(vararg args: String) {
     val config: Configuration = File(args.getOrNull(0) ?: "config.json").let { file ->
         if (file.createNewFile()) {
-            Configuration().also { file.writeText(json.encodeToString(it)) }
-        } else json.decodeFromString(file.readText())
+            Configuration().also { file.writeText(prettyJson.encodeToString(it)) }
+        } else prettyJson.decodeFromString(file.readText())
     }
 
     val httpClient = OkHttpClient.Builder().run {
