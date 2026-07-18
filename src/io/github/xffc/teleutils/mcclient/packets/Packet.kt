@@ -24,13 +24,15 @@ interface Packet {
     }
 
     companion object {
-        fun <T: PacketInfo<*>> KClass<T>.registry(): Map<State, Map<Int, T>> = State.entries.associate { state ->
-            state to buildMap {
-                sealedSubclasses.forEach { kClass ->
-                    val instance = kClass.objectInstance ?: return@forEach
-                    put(instance.id, instance)
-                }
+        fun <T : PacketInfo<*>> KClass<T>.registry(): Map<State, Map<Int, T>> {
+            val statesRegistry = State.entries.associateWith { mutableMapOf<Int, T>() }.toMutableMap()
+
+            sealedSubclasses.forEach { kClass ->
+                val instance = kClass.objectInstance ?: return@forEach
+                statesRegistry.getValue(instance.state)[instance.id] = instance
             }
+
+            return statesRegistry
         }
 
         val clientboundRegistry = ClientboundPacketInfo::class.registry()
