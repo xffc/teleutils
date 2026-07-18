@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Proxy
@@ -31,9 +32,34 @@ val json = Json {
     ignoreUnknownKeys = true
 }
 
+val prettyJson = Json {
+    encodeDefaults = true
+    prettyPrint = true
+    ignoreUnknownKeys = true
+}
+
+data class Configuration(
+    val token: String = "XXX:XXX-XXX",
+    val proxy: ProxyConfiguration? = null
+) {
+    data class ProxyConfiguration(
+        val host: String,
+        val port: Int,
+        val type: Proxy.Type
+    ) {
+        fun create(): Proxy = Proxy(type, InetSocketAddress(host, port))
+    }
+}
+
 fun main(vararg args: String) {
+    val config: Configuration = File(args.getOrNull(0) ?: "config.json").let { file ->
+        if (file.createNewFile()) {
+            Configuration().also { file.writeText(json.encodeToString(it)) }
+        } else json.decodeFromString(file.readText())
+    }
+
     val httpClient = OkHttpClient.Builder().run {
-        //proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 10808)))
+        if (config.proxy != null) proxy(config.proxy.create())
         build()
     }
 
