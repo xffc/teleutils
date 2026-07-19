@@ -14,6 +14,9 @@ repositories {
 }
 
 dependencies {
+    implementation("io.github.xffc.kmc:net:1.1")
+    implementation("io.github.xffc.kmc:serverstatus:1.1")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     implementation("com.github.pengrad:java-telegram-bot-api:10.1.0")

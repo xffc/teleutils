@@ -10,7 +10,6 @@ import com.pengrad.telegrambot.request.GetMe
 import com.pengrad.telegrambot.request.SendMessage
 import com.pengrad.telegrambot.response.BaseResponse
 import io.github.xffc.teleutils.commands.ExecutableCommand
-import io.github.xffc.teleutils.mcclient.packets.Packet
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -28,10 +27,6 @@ lateinit var bot: TelegramBot
     private set
 
 val logger: Logger = LoggerFactory.getLogger("TeleUtils")
-
-val json = Json {
-    ignoreUnknownKeys = true
-}
 
 val prettyJson = Json {
     encodeDefaults = true
@@ -69,10 +64,6 @@ fun main(vararg args: String) {
     bot = TelegramBot.Builder(config.token)
         .okHttpClient(httpClient)
         .build()
-
-    // init registries
-    Packet.clientboundRegistry
-    Packet.serverboundRegistry
 
     val botInfo = bot.execute(GetMe()).user()
     logger.info("Logged as ${botInfo.username()} (${botInfo.id()})")
